@@ -15,6 +15,8 @@ collector:
   jaegerAddr:
 
 jaeger:
+  # -- Set to false do exclude all-in-one Jaeger installation
+  enabled: true
   image: 
     name: jaegertracing/all-in-one
     version: 1.19.2

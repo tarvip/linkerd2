@@ -76,6 +76,7 @@ Kubernetes: `>=1.16.0-0`
 | collector.image.version | string | `"0.1.11"` |  |
 | collector.jaegerAddr | string | `nil` | address of the jaeger backend to send traces to |
 | installNamespace | bool | `true` | Set to false when installing in a custom namespace. |
+| jaeger.enabled | bool | `true` | Set to false do exclude all-in-one Jaeger installation |
 | jaeger.image.name | string | `"jaegertracing/all-in-one"` |  |
 | jaeger.image.pullPolicy | string | `"Always"` |  |
 | jaeger.image.version | string | `"1.19.2"` |  |
