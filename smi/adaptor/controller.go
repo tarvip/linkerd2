@@ -190,8 +190,8 @@ func (c *SMIController) syncHandler(key string) error {
 	// Get the Ts resource with this namespace/name
 	ts, err := c.tsLister.TrafficSplits(namespace).Get(name)
 	if err != nil {
-		// Check if TS does not exit anymore
 		if errors.IsNotFound(err) {
+			// TS does not exit anymore
 			// Check if there is a relevant SP that was created or updated by SMI Controller
 			selector := labels.NewSelector()
 			r, err := labels.NewRequirement(createdOrUpdatedBySMIAdaptorFor, selection.Equals, []string{name})
@@ -204,19 +204,22 @@ func (c *SMIController) syncHandler(key string) error {
 				return err
 			}
 
-			if len(sps) != 0 {
-				// Empty dstOverrides in the SP
-				sp := sps[0]
-				if ignoreAnnotationPresent(sp) {
-					log.Infof("skipping %s sp as ignore annotation is present", sp.Name)
-					return nil
-				}
+			// return as there are no relevant sp's
+			if len(sps) == 0 {
+				return nil
+			}
 
-				sp.Spec.DstOverrides = nil
-				_, err = c.spclientset.LinkerdV1alpha2().ServiceProfiles(namespace).Update(context.Background(), sp, metav1.UpdateOptions{})
-				if err != nil {
-					return err
-				}
+			// Empty dstOverrides in the SP
+			sp := sps[0]
+			if ignoreAnnotationPresent(sp) {
+				log.Infof("skipping %s sp as ignore annotation is present", sp.Name)
+				return nil
+			}
+
+			sp.Spec.DstOverrides = nil
+			_, err = c.spclientset.LinkerdV1alpha2().ServiceProfiles(namespace).Update(context.Background(), sp, metav1.UpdateOptions{})
+			if err != nil {
+				return err
 			}
 			return nil
 		}
