@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	// createdOrUpdatedBySMIAdaptorFor annotation is added to the SP resource
-	// by the SMI adaptor whenever a creation or updatation is done
+	// createdOrUpdatedBySMIAdaptorFor annotation is added to a service profile resource
+	// whenever it has been created or updated by the SMI adaptor
 	createdOrUpdatedBySMIAdaptorFor = "smi.linkerd.io/updated-for"
 
 	// ignoreServiceProfileAnnotation is used with Service Profiles
@@ -223,7 +223,7 @@ func (c *SMIController) syncHandler(key string) error {
 		return err
 	}
 
-	// Check if the Service Profile is already Present
+	// Check if the Service Profile is already present
 	sp, err := c.spLister.ServiceProfiles(ts.Namespace).Get(fmt.Sprintf("%s.%s.svc.%s", ts.Spec.Service, ts.Namespace, c.clusterDomain))
 	if err != nil {
 		// Create a Service Profile resource as it does not exist
@@ -232,7 +232,7 @@ func (c *SMIController) syncHandler(key string) error {
 			return err
 		}
 	} else {
-		log.Infof("Service Profile already present")
+		log.Infof("serviceprofile/%s already present", sp.Name)
 		if ignoreAnnotationPresent(sp) {
 			log.Infof("skipping %s sp as ignore annotation is present", sp.Name)
 			return nil
@@ -241,9 +241,9 @@ func (c *SMIController) syncHandler(key string) error {
 		// Check if SP Matches the TS, and update if it not
 		spFromTs := c.toServiceProfile(ts)
 		if !equal(spFromTs, sp) {
-			log.Infof("serviceprofile/%s does not match trafficscplit/%s", sp.Name, ts.Name)
+			log.Debugf("serviceprofile/%s does not match trafficscplit/%s", sp.Name, ts.Name)
 			updateDstOverrides(sp, ts, c.clusterDomain)
-			log.Infof("Updated Service Profile as it's not equivalent to the relevant TS")
+			log.Debugf("Updated Service Profile as it's not equivalent to the relevant TS")
 			_, err = c.spclientset.LinkerdV1alpha2().ServiceProfiles(ts.Namespace).Update(context.Background(), sp, metav1.UpdateOptions{})
 			if err != nil {
 				return err
