@@ -5,6 +5,8 @@ installNamespace: true
 namespace: linkerd-jaeger
 
 collector:
+  # -- Set to false do exclude collector installation
+  enabled: true
   image: 
     name: omnition/opencensus-collector
     version: 0.1.11
